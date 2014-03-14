@@ -275,11 +275,25 @@ if ( $tpl_show_handler || $tpl_show_due_date ) {
 		# Due Date
 		echo '<td class="category">', lang_get( 'due_date' ), '</td>';
 
-		if ( bug_is_overdue( $tpl_bug_id ) ) {
-			echo '<td class="overdue">';
-		} else {
+//--OLD_BEGIN
+//		if ( bug_is_overdue( $tpl_bug_id ) ) {
+//			echo '<td class="overdue">';
+//		} else {
+//			echo '<td>';
+//		}
+//--OLD_END
+
+//--MY_START_Merkelov
+        $tpl_bug_overdue_class = bug_is_overdue_get_class( $tpl_bug_id );
+		if ( $tpl_bug_overdue_class )
+        {
+			echo '<td class="'.$tpl_bug_overdue_class.'">';
+		}
+        else
+        {
 			echo '<td>';
 		}
+//--MY_END_Merkelov
 
 		if ( access_has_bug_level( config_get( 'due_date_update_threshold' ), $tpl_bug_id ) ) {
 			$t_date_to_display = '';

@@ -1342,11 +1342,25 @@ function print_column_due_date( $p_bug, $p_columns_target = COLUMNS_TARGET_VIEW_
 		return;
 	}
 
-	if ( bug_is_overdue( $p_bug->id ) ) {
-		echo '<td class="overdue">';
-	} else {
-		echo '<td>';
-	}
+//--OLD_BEGIN
+//	if ( bug_is_overdue( $p_bug->id ) ) {
+//		echo '<td class="overdue">';
+//	} else {
+//		echo '<td>';
+//	}
+//--OLD_END
+
+//--MY_START_Merkelov
+    $tpl_bug_overdue_class = bug_is_overdue_get_class( $p_bug->id );
+    if ( $tpl_bug_overdue_class )
+    {
+        echo '<td class="'.$tpl_bug_overdue_class.'">';
+    }
+    else
+    {
+        echo '<td>';
+    }
+//--MY_END_Merkelov
 
 	echo string_display_line( date( config_get( 'short_date_format' ), $p_bug->due_date ) );
 

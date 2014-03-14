@@ -867,6 +867,43 @@ function bug_is_overdue( $p_bug_id ) {
 	return false;
 }
 
+//--MY_START_Merkelov
+/**
+ * Возвращает css класс для отображения due_date при проверке просрочки
+ * @param int p_bug_id integer representing bug id
+ * @return ''/'due_date_today'/'overdue' из default.css
+ * @access public
+ * @uses database_api.php
+ */
+function bug_is_overdue_get_class( $p_bug_id )
+{
+	$t_due_date = bug_get_field( $p_bug_id, 'due_date' );
+
+	if( !date_is_null( $t_due_date ) )
+    {
+		$t_now = db_now();
+		if( $t_now > $t_due_date )
+        {
+			if( !bug_is_resolved( $p_bug_id ) )
+            {
+				return 'overdue';
+			}
+		}
+        else
+        {
+            $t_start_tuday = $t_due_date - (24 * 60*60);
+
+            if ($t_now > $t_start_tuday)
+            {
+                return 'due_date_today';
+            }
+        }
+	}
+
+	return '';
+}
+//--MY_END_Merkelov
+
 /**
  * Validate workflow state to see if bug can be moved to requested state
  * @param int p_bug_status current bug status

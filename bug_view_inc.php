@@ -136,6 +136,7 @@
 	$tpl_show_tags = in_array( 'tags', $t_fields ) && access_has_global_level( config_get( 'tag_view_threshold' ) );
 
 	$tpl_bug_overdue = bug_is_overdue( $f_bug_id );
+    $tpl_bug_overdue_class = bug_is_overdue_get_class( $f_bug_id );  //--MY_START_Merkelov
 
 	$tpl_show_view_state = in_array( 'view_state', $t_fields );
 	$tpl_bug_view_state_enum = $tpl_show_view_state ? string_display_line( get_enum_element( 'view_state', $tpl_bug->view_state ) ) : '';
@@ -362,18 +363,43 @@
 			$t_spacer += 2;
 		}
 
+//--OLD_BEGIN
+//		# Due Date
+//		if ( $tpl_show_due_date ) {
+//			echo '<td class="category">', lang_get( 'due_date' ), '</td>';
+//
+//			if ( $tpl_bug_overdue ) {
+//				echo '<td class="overdue">', $tpl_bug_due_date, '</td>';
+//			} else {
+//				echo '<td>', $tpl_bug_due_date, '</td>';
+//			}
+//		} else {
+//			$t_spacer += 2;
+//		}
+//--OLD_END
+
+//--MY_START_Merkelov
 		# Due Date
-		if ( $tpl_show_due_date ) {
+		if ( $tpl_show_due_date )
+        {
+            // Текст label
 			echo '<td class="category">', lang_get( 'due_date' ), '</td>';
 
-			if ( $tpl_bug_overdue ) {
-				echo '<td class="overdue">', $tpl_bug_due_date, '</td>';
-			} else {
+            // Цвет
+			if ( $tpl_bug_overdue_class )
+            {
+				echo '<td class="'.$tpl_bug_overdue_class.'">', $tpl_bug_due_date, '</td>';
+			}
+            else
+            {
 				echo '<td>', $tpl_bug_due_date, '</td>';
 			}
-		} else {
+		}
+        else
+        {
 			$t_spacer += 2;
 		}
+//--MY_END_Merkelov
 
 		echo '<td colspan="', $t_spacer, '">&#160;</td>';
 		echo '</tr>';
