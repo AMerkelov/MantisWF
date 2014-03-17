@@ -877,6 +877,9 @@ function bug_is_overdue( $p_bug_id ) {
  */
 function bug_is_overdue_get_class( $p_bug_id )
 {
+    if( bug_is_resolved( $p_bug_id ) )
+        return '';
+
 	$t_due_date = bug_get_field( $p_bug_id, 'due_date' );
 
 	if( !date_is_null( $t_due_date ) )
@@ -884,10 +887,59 @@ function bug_is_overdue_get_class( $p_bug_id )
 		$t_now = db_now();
 		if( $t_now > $t_due_date )
         {
-			if( !bug_is_resolved( $p_bug_id ) )
+			return 'overdue';
+		}
+        else
+        {
+            $t_start_tuday = $t_due_date - (24 * 60*60);
+
+            if ($t_now > $t_start_tuday)
             {
-				return 'overdue';
-			}
+                return 'due_date_today';
+            }
+        }
+	}
+
+	return '';
+}
+
+/**
+ * Возвращает css класс для отображения due_date при проверке просрочки
+ * + Возвращает отформатированную строку c оставшееся время до due_date
+ * @param int p_bug_id integer representing bug id
+ * @return ''/'due_date_today'/'overdue' из default.css
+ * &$rest_due_date_str - строка с оставшемся временем до due_date
+ * @access public
+ * @uses database_api.php
+ */
+function bug_is_overdue_get_class2( $p_bug_id, &$rest_due_date_str )
+{
+    if( bug_is_resolved( $p_bug_id ) )
+        return '';
+
+	$t_due_date = bug_get_field( $p_bug_id, 'due_date' );
+
+	if( !date_is_null( $t_due_date ) )
+    {
+		$t_now = db_now();
+
+        // формируем строку с оставшимся временем
+        $t_rest = abs($t_due_date - $t_now);
+
+        if ($t_rest > 86400)
+        {
+            $rest_due_date_str = gmdate("jд.", $t_rest-86400) . gmdate("H:i", $t_rest);
+        }
+        else
+        {
+            $rest_due_date_str = gmdate("H:i", $t_rest);
+        }
+
+
+        // возвращаем класс
+		if( $t_now > $t_due_date )
+        {
+			return 'overdue';
 		}
         else
         {

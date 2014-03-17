@@ -370,6 +370,23 @@ echo "($v_start - $v_end / $t_bug_count)";
 	} else {
 		echo ' - ' . $t_last_updated;
 	}
+
+    //--MY_START_Merkelov
+
+    // получаем кол-во дней до due_date
+    $rest_due_date_str = '';
+    $tpl_bug_overdue_class = bug_is_overdue_get_class2( $t_bug->id, $rest_due_date_str );
+
+    if ($rest_due_date_str)
+    {
+        echo '<td class="'.$tpl_bug_overdue_class.'"> ('.$rest_due_date_str.')</td>';
+    }
+    else
+    {
+        echo '<td></td>';
+    }
+    //--MY_END_Merkelov
+
 	?>
 		</span>
 	</td>
