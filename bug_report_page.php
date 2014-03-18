@@ -42,11 +42,17 @@
 		# master bug exists...
 		bug_ensure_exists( $f_master_bug_id );
 
-		# master bug is not read-only...
-		if ( bug_is_readonly( $f_master_bug_id ) ) {
-			error_parameters( $f_master_bug_id );
-			trigger_error( ERROR_BUG_READ_ONLY_ACTION_DENIED, ERROR );
-		}
+//--OLD_BEGIN
+//		# master bug is not read-only...
+//		if ( bug_is_readonly( $f_master_bug_id ) ) {
+//			error_parameters( $f_master_bug_id );
+//			trigger_error( ERROR_BUG_READ_ONLY_ACTION_DENIED, ERROR );
+//		}
+//--OLD_END
+
+//--MY_START_Merkelov
+        # Разрешаем редактирование при ReadOnly для КЛОНИРОВАНИЯ
+//--MY_END_Merkelov
 
 		$t_bug = bug_get( $f_master_bug_id, true );
 
@@ -423,9 +429,9 @@
 		</td>
 		<td>
 			<select <?php echo helper_get_tab_index() ?> name="status">
-			<?php 
-			$resolution_options = get_status_option_list(access_get_project_level( $t_project_id), 
-					config_get('bug_submit_status'), true, 
+			<?php
+			$resolution_options = get_status_option_list(access_get_project_level( $t_project_id),
+					config_get('bug_submit_status'), true,
 					ON == config_get( 'allow_reporter_close' ), $t_project_id );
 			foreach ( $resolution_options as $key => $value ) {
 			?>
@@ -445,7 +451,7 @@
 		</td>
 		<td>
 			<select <?php echo helper_get_tab_index() ?> name="resolution">
-				<?php 
+				<?php
 				print_enum_string_option_list('resolution', config_get('default_bug_resolution'));
 				?>
 			</select>

@@ -25,20 +25,29 @@
 	  */
 	require_once( 'core.php' );
 
-	require_once( 'wiki_api.php' );
+//--OLD_BEGIN
+//
+//	require_once( 'wiki_api.php' );
+//
+//	$f_id = gpc_get_int( 'id' );
+//	$f_type = gpc_get_string( 'type', 'issue' );
+//
+//	if ( $f_type == 'project' ) {
+//		if ( $f_id !== 0 ) {
+//			project_ensure_exists( $f_id );
+//		}
+//
+//		$t_url = wiki_link_project( $f_id );
+//	} else {
+//		bug_ensure_exists( $f_id );
+//		$t_url = wiki_link_bug( $f_id );
+//	}
+//
+//	print_header_redirect( $t_url, true, false, true );
+//
+//--OLD_END
 
-	$f_id = gpc_get_int( 'id' );
-	$f_type = gpc_get_string( 'type', 'issue' );
-
-	if ( $f_type == 'project' ) {
-		if ( $f_id !== 0 ) {
-			project_ensure_exists( $f_id );
-		}
-
-		$t_url = wiki_link_project( $f_id );
-	} else {
-		bug_ensure_exists( $f_id );
-		$t_url = wiki_link_bug( $f_id );
-	}
-
-	print_header_redirect( $t_url, true, false, true );
+//--MY_START_Merkelov
+    $t_url = 'http://192.168.18.10/wiki/doku.php?id=mantis:start';
+    print_header_redirect( $t_url, true, false, true );
+//--MY_END_Merkelov

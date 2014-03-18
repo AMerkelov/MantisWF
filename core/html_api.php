@@ -1722,12 +1722,23 @@ function html_buttons_view_bug_page( $p_bug_id ) {
 		echo '</td>';
 	}
 
+//--OLD_BEGIN
+//	# CLONE button
+//	if( !$t_readonly ) {
+//		echo '<td class="center">';
+//		html_button_bug_create_child( $p_bug_id );
+//		echo '</td>';
+//	}
+//--OLD_END
+
+//--MY_START_Merkelov
 	# CLONE button
-	if( !$t_readonly ) {
+    // показываем даже если статус ReadOnly
 		echo '<td class="center">';
 		html_button_bug_create_child( $p_bug_id );
 		echo '</td>';
-	}
+
+//--MY_END_Merkelov
 
 	# REOPEN button
 	echo '<td class="center">';

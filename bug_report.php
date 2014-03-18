@@ -38,10 +38,18 @@
 	$f_master_bug_id = gpc_get_int( 'm_id', 0 );
 	if ( $f_master_bug_id > 0 ) {
 		bug_ensure_exists( $f_master_bug_id );
-		if ( bug_is_readonly( $f_master_bug_id ) ) {
-			error_parameters( $f_master_bug_id );
-			trigger_error( ERROR_BUG_READ_ONLY_ACTION_DENIED, ERROR );
-		}
+
+//--OLD_BEGIN
+//		if ( bug_is_readonly( $f_master_bug_id ) ) {
+//			error_parameters( $f_master_bug_id );
+//			trigger_error( ERROR_BUG_READ_ONLY_ACTION_DENIED, ERROR );
+//		}
+//--OLD_END
+
+//--MY_START_Merkelov
+        # Разрешаем редактирование при ReadOnly для КЛОНИРОВАНИЯ
+//--MY_END_Merkelov
+
 		$t_master_bug = bug_get( $f_master_bug_id, true );
 		project_ensure_exists( $t_master_bug->project_id );
 		access_ensure_bug_level( config_get( 'update_bug_threshold', null, null, $t_master_bug->project_id ), $f_master_bug_id );
