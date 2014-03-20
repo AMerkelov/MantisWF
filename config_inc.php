@@ -246,5 +246,4 @@ $g_log_destination = 'file:C:\MyIISServices\mantis\logs\mantisbt2.log';
 		'attachments',
 		'due_date',
 	);
-
 ?>
