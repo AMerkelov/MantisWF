@@ -52,10 +52,10 @@ $g_from_name			= 'Mantis Work';
 
 
 # --- Attachments / File Uploads ---
-# $g_allow_file_upload	= ON;
+ $g_allow_file_upload	= ON;
 # $g_file_upload_method	= DATABASE; # or DISK
-// $g_file_upload_method	= DISK;
-// $g_absolute_path_default_upload_folder = 'C:\MyIISServices\mantis\UPLOADED\'; # used with DISK, must contain trailing \ or /.
+ $g_file_upload_method	= DISK;
+ $g_absolute_path_default_upload_folder = 'D:\\Mantis_UPLOADED\\'; //# used with DISK, must contain trailing \ or /
 //# $g_max_file_size		= 5000000;	# in bytes
 $g_max_file_size		= 40 * 1024 * 1024;	# in bytes
 # $g_preview_attachments_inline_max_size = 256 * 1024;
