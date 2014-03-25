@@ -67,6 +67,7 @@ $g_max_file_size		= 40 * 1024 * 1024;	# in bytes
 # --- Branding ---
 # $g_window_title			= 'MantisBT';
 # $g_logo_image			= 'images/mantis_logo.png';
+$g_logo_image			= 'images/mantis_logo2.jpg';
 # $g_favicon_image		= 'images/favicon.ico';
 
 # --- Real names ---
@@ -148,7 +149,7 @@ $g_log_destination = 'file:C:\MyIISServices\mantis\logs\mantisbt2.log';
 		'reporter',
 		'handler',
 		'priority',
-		'severity',
+//		'severity',
 //		'reproducibility',
 		'status',
 		'resolution',
@@ -189,7 +190,7 @@ $g_log_destination = 'file:C:\MyIISServices\mantis\logs\mantisbt2.log';
 		'reporter',
 		'handler',
 		'priority',
-		'severity',
+//		'severity',
 //		'reproducibility',
 		'status',
 		'resolution',
@@ -231,7 +232,7 @@ $g_log_destination = 'file:C:\MyIISServices\mantis\logs\mantisbt2.log';
 		'view_state',
 		'handler',
 		'priority',
-		'severity',
+//		'severity',
 //		'reproducibility',
 //		'platform',
 //		'os',
@@ -246,4 +247,7 @@ $g_log_destination = 'file:C:\MyIISServices\mantis\logs\mantisbt2.log';
 		'attachments',
 		'due_date',
 	);
+
+
+
 ?>
