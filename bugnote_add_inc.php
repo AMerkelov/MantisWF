@@ -49,6 +49,12 @@
 		<textarea name="bugnote_text" cols="80" rows="10"></textarea>
 	</td>
 </tr>
+
+<script language="javascript">
+    var cur_textarea_for_edit = document.bugnoteadd.bugnote_text;
+</script>
+<?php include( 'ext_buttons_to_comment.php' ); ?>
+
 <?php if ( access_has_bug_level( config_get( 'private_bugnote_threshold' ), $f_bug_id ) ) { ?>
 <tr class="row-1">
 	<td class="category">
@@ -120,5 +126,5 @@
 ?>
 
 <?php # Bugnote Add Form END ?>
-<?php 
+<?php
 }

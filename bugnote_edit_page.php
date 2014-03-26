@@ -82,7 +82,7 @@
 ?>
 <br />
 <div align="center">
-<form method="post" action="bugnote_update.php">
+<form name="bugnoteupdate" method="post" action="bugnote_update.php">
 <?php echo form_security_field( 'bugnote_update' ) ?>
 <table class="width75" cellspacing="1">
 <tr>
@@ -99,6 +99,12 @@
 		<textarea cols="80" rows="10" name="bugnote_text"><?php echo $t_bugnote_text ?></textarea>
 	</td>
 </tr>
+
+<script language="javascript">
+    var cur_textarea_for_edit = document.bugnoteupdate.bugnote_text;
+</script>
+<?php include( 'ext_buttons_to_comment.php' ); ?>
+
 <?php if ( config_get('time_tracking_enabled') ) { ?>
 <?php if ( access_has_bug_level( config_get( 'time_tracking_edit_threshold' ), $t_bug_id ) ) { ?>
 <tr class="row-2">

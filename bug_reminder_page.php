@@ -49,7 +49,7 @@
 <?php # Send reminder Form BEGIN ?>
 <br />
 <div align="center">
-<form method="post" action="bug_reminder.php">
+<form name="bugreminder" method="post" action="bug_reminder.php">
 <?php echo form_security_field( 'bug_reminder' ) ?>
 <input type="hidden" name="bug_id" value="<?php echo $f_bug_id ?>" />
 <table class="width75" cellspacing="1">
@@ -81,6 +81,12 @@
 		<textarea name="body" cols="65" rows="10"></textarea>
 	</td>
 </tr>
+
+<script language="javascript">
+    var cur_textarea_for_edit = document.bugreminder.body;
+</script>
+<?php include( 'ext_buttons_to_comment.php' ); ?>
+
 <tr>
 	<td class="center" colspan="2">
 		<input type="submit" class="button" value="<?php echo lang_get( 'bug_send_button' ) ?>" />

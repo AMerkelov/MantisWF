@@ -206,7 +206,7 @@
 <br />
 
 <div align="center">
-<form method="post" action="bug_actiongroup.php">
+<form name="bugactiongroup" method="post" action="bug_actiongroup.php">
 <?php echo form_security_field( $t_form_name ); ?>
 <input type="hidden" name="action" value="<?php echo string_attribute( $f_action ) ?>" />
 <?php
@@ -325,6 +325,12 @@ if( $t_bugnote ) {
 		<textarea name="bugnote_text" cols="80" rows="10"></textarea>
 	</td>
 </tr>
+
+<script language="javascript">
+    var cur_textarea_for_edit = document.bugactiongroup.bugnote_text;
+</script>
+<?php include( 'ext_buttons_to_comment.php' ); ?>
+
 <?php if ( access_has_project_level( config_get( 'private_bugnote_threshold' ), $t_project_id ) ) { ?>
 <tr <?php echo helper_alternate_class() ?>>
 	<td class="category">

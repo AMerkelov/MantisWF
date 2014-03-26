@@ -103,7 +103,7 @@
 
 <br />
 <div align="center">
-<form method="post" action="bug_update.php">
+<form name="bugupdate" method="post" action="bug_update.php">
 <?php echo form_security_field( 'bug_update' ) ?>
 <table class="width75" cellspacing="1">
 
@@ -317,6 +317,12 @@ if ( ( $f_new_status >= $t_resolved ) && ( $t_closed > $f_new_status ) ) { ?>
 		<textarea name="bugnote_text" cols="80" rows="10"></textarea>
 	</td>
 </tr>
+
+<script language="javascript">
+    var cur_textarea_for_edit = document.bugupdate.bugnote_text;
+</script>
+<?php include( 'ext_buttons_to_comment.php' ); ?>
+
 <?php if ( access_has_bug_level( config_get( 'private_bugnote_threshold' ), $f_bug_id ) ) { ?>
 <tr <?php echo helper_alternate_class() ?>>
 	<td class="category">
