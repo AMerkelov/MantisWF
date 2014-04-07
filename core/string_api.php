@@ -488,7 +488,8 @@ function string_insert_hrefs( $p_string ) {
 		$t_url_hex = '%[[:digit:]A-Fa-f]{2}';
 
 		# valid set of characters that may occur in url scheme. Note: - should be first (A-F != -AF).
-		$t_url_valid_chars       = '-_.,!~*\';\/?%^\\\\:@&={\|}+$#[:alnum:]\pL';
+        //--MY_START_Merkelov добавил в символ Url еще '№' иначе путь рушился --//
+		$t_url_valid_chars       = '-№_.,!~*\';\/?%^\\\\:@&={\|}+$#[:alnum:]\pL';
 		$t_url_chars             = "(?:${t_url_hex}|[${t_url_valid_chars}\(\)\[\]])";
 		$t_url_chars2            = "(?:${t_url_hex}|[${t_url_valid_chars}])";
 		$t_url_chars_in_brackets = "(?:${t_url_hex}|[${t_url_valid_chars}\(\)])";
