@@ -1,0 +1,9 @@
+*.bom
+*__history*
+/plugins/CubeObjectPower/pages/__history/cop_page_test1_grid.php.~13~
+/plugins/CubeObjectPower/files/codebase/*
+/plugins/codev/*
+/plugins/CustomerManagement/*
+/plugins/Reminder/*
+/plugins/GanttChart/*
+/plugins/Workload/*

@@ -1,0 +1,31 @@
+[07-Apr-2014 14:55:09 Europe/Moscow] PHP Warning:  require_once(./core.php): failed to open stream: No such file or directory in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\unit_page2.php on line 19
+[07-Apr-2014 14:55:09 Europe/Moscow] PHP Fatal error:  require_once(): Failed opening required './core.php' (include_path='.;C:\php\pear') in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\unit_page2.php on line 19
+[07-Apr-2014 14:55:27 Europe/Moscow] PHP Warning:  require_once(./core.php): failed to open stream: No such file or directory in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\unit_page2.php on line 19
+[07-Apr-2014 14:55:27 Europe/Moscow] PHP Fatal error:  require_once(): Failed opening required './core.php' (include_path='.;C:\php\pear') in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\unit_page2.php on line 19
+[07-Apr-2014 14:57:38 Europe/Moscow] PHP Warning:  require_once(./core.php): failed to open stream: No such file or directory in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\unit_page2.php on line 19
+[07-Apr-2014 14:57:38 Europe/Moscow] PHP Fatal error:  require_once(): Failed opening required './core.php' (include_path='.;C:\php\pear') in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\unit_page2.php on line 19
+[07-Apr-2014 14:59:54 Europe/Moscow] PHP Warning:  require_once(core.php): failed to open stream: No such file or directory in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\unit_page2.php on line 19
+[07-Apr-2014 14:59:54 Europe/Moscow] PHP Fatal error:  require_once(): Failed opening required 'core.php' (include_path='.;C:\php\pear') in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\unit_page2.php on line 19
+[08-Apr-2014 09:22:30 Europe/Moscow] PHP Notice:  Undefined index: g_mantistouch_url in C:\MyIISServices\mantis\core.php on line 113
+[08-Apr-2014 09:22:30 Europe/Moscow] PHP Warning:  100 in C:\MyIISServices\mantis\core\config_api.php on line 192
+[08-Apr-2014 09:22:30 Europe/Moscow] PHP Warning:  100 in C:\MyIISServices\mantis\core\config_api.php on line 192
+[08-Apr-2014 09:22:30 Europe/Moscow] PHP Warning:  100 in C:\MyIISServices\mantis\core\config_api.php on line 192
+[08-Apr-2014 09:22:30 Europe/Moscow] PHP Warning:  in_array() expects parameter 2 to be array, null given in C:\MyIISServices\mantis\core\config_api.php on line 425
+[08-Apr-2014 09:22:30 Europe/Moscow] PHP Warning:  100 in C:\MyIISServices\mantis\core\database_api.php on line 921
+[08-Apr-2014 09:22:30 Europe/Moscow] PHP Warning:  100 in C:\MyIISServices\mantis\core\config_api.php on line 192
+[08-Apr-2014 09:22:30 Europe/Moscow] PHP Warning:  in_array() expects parameter 2 to be array, null given in C:\MyIISServices\mantis\core\lang_api.php on line 183
+[08-Apr-2014 09:22:30 Europe/Moscow] PHP Fatal error:  Call to undefined function plugin_get_current() in C:\MyIISServices\mantis\core\lang_api.php on line 278
+[08-Apr-2014 09:33:02 Europe/Moscow] PHP Warning:  require_once(core.php): failed to open stream: No such file or directory in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\unit_page2.php on line 19
+[08-Apr-2014 09:33:02 Europe/Moscow] PHP Fatal error:  require_once(): Failed opening required 'core.php' (include_path='.;C:\php\pear') in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\unit_page2.php on line 19
+[08-Apr-2014 09:42:17 Europe/Moscow] PHP Notice:  session_start(): ps_files_cleanup_dir: opendir(C:\WINDOWS\TEMP) failed: No such file or directory (2) in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\rpcl\forms.inc.php on line 159
+[08-Apr-2014 09:54:14 Europe/Moscow] PHP Notice:  Undefined index: g_mantistouch_url in C:\MyIISServices\mantis\core.php on line 113
+[08-Apr-2014 09:54:14 Europe/Moscow] PHP Warning:  100 in C:\MyIISServices\mantis\core\config_api.php on line 192
+[08-Apr-2014 09:54:14 Europe/Moscow] PHP Warning:  100 in C:\MyIISServices\mantis\core\config_api.php on line 192
+[08-Apr-2014 09:54:14 Europe/Moscow] PHP Warning:  100 in C:\MyIISServices\mantis\core\config_api.php on line 192
+[08-Apr-2014 09:54:14 Europe/Moscow] PHP Warning:  in_array() expects parameter 2 to be array, null given in C:\MyIISServices\mantis\core\config_api.php on line 425
+[08-Apr-2014 09:54:14 Europe/Moscow] PHP Warning:  100 in C:\MyIISServices\mantis\core\database_api.php on line 921
+[08-Apr-2014 09:54:14 Europe/Moscow] PHP Warning:  100 in C:\MyIISServices\mantis\core\config_api.php on line 192
+[08-Apr-2014 09:54:14 Europe/Moscow] PHP Warning:  in_array() expects parameter 2 to be array, null given in C:\MyIISServices\mantis\core\lang_api.php on line 183
+[08-Apr-2014 09:54:14 Europe/Moscow] PHP Fatal error:  Call to undefined function plugin_get_current() in C:\MyIISServices\mantis\core\lang_api.php on line 278
+[08-Apr-2014 10:04:09 Europe/Moscow] PHP Warning:  require_once(core.php): failed to open stream: No such file or directory in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\unit_page2.php on line 19
+[08-Apr-2014 10:04:09 Europe/Moscow] PHP Fatal error:  require_once(): Failed opening required 'core.php' (include_path='.;C:\php\pear') in C:\MyIISServices\mantis\plugins\CubeObjectPower\pages\unit_page2.php on line 19
