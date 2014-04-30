@@ -9,7 +9,7 @@ class CubeObjectPowerPlugin extends MantisPlugin {
 		$this->author      = 'Александр Меркелов';
 		$this->contact     = 'free_mind@list.ru';
 		$this->url         = '';
-		$this->page        = 'config';
+		$this->page        = 'cop_config';
 	}
 
 	/*** Default plugin configuration.	 */
@@ -46,6 +46,6 @@ class CubeObjectPowerPlugin extends MantisPlugin {
 	}
 
 	function menu_main() {
-		return array('<a href="'. plugin_page( 'page_main.php' ) . '">' . 'БД Оборудования' . '</a>' );
+		return array('<a href="'. plugin_page( 'cop_page_main.php' ) . '">' . 'БД Оборудования' . '</a>' );
 	}
 }
