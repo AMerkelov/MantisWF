@@ -20,7 +20,7 @@ function getXmlHttp(){
 
 function runAjaxJS(self, funk_name, params, action_page)
 {
-alert('1');
+//alert('1');
 
 	var xmlhttp = getXmlHttp();
 	//xmlhttp.open('GET', '?page=CubeObjectPower/page_equipment_add.php&funk='+funk_name+params, true);
@@ -28,20 +28,21 @@ alert('1');
 	
 	if (action_page == undefined)
 	{
+//alert('1a_open='+window.location+'&funk='+funk_name+params);
 		xmlhttp.open('GET', window.location+'&funk='+funk_name+params, true);
 	}
 	else
 	{
-		alert('1a_open='+action_page+'&funk='+funk_name+params);
+//alert('1b_open='+action_page+'&funk='+funk_name+params);
 		xmlhttp.open('GET', action_page+'&funk='+funk_name+params, true);
 	}
 	
 	xmlhttp.onreadystatechange = function() {
 	  if (xmlhttp.readyState == 4) {
 		 if(xmlhttp.status == 200) {
-alert('2=' + xmlhttp.responseText);
+//alert('2=' + xmlhttp.responseText);
 		   eval(xmlhttp.responseText);
-alert('3');
+//alert('3');
 			 }
 	  }
 	};
@@ -55,11 +56,11 @@ alert('hello');
 
 function setInnerHtmlById(obj_id, html_str)
 {
-alert('11');
+//alert('11');
 	var elem = document.getElementById(obj_id);
-alert('12z='+elem);
+//alert('12z='+elem);
 	elem.innerHTML = html_str;
-alert('13');
+//alert('13');
 }
 
 function getElemById(obj_id)
