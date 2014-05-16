@@ -173,7 +173,7 @@ class MLink_Object //extends MLink
                 $selected = 'selected="selected"';
             }
 
-            // value="t_equipment_type_controller,1" - передаем сразу название таблицы, ее id и ее название
+            // value="t_equipment_type_controller,1,Тип контроллера" - передаем сразу название таблицы, ее id и ее название
             // [0] - table_name
             // [1] - table_id
             // [2] - table_caption
@@ -207,6 +207,7 @@ class MLink_Object //extends MLink
 //==============================================================================
 class MField
 {
+    var $m_parent_form;    // форма которой принадлежит поле
 
     var $m_name;           // название поля в таблице
     var $m_caption;        // заголовок поля для отображения
@@ -233,6 +234,8 @@ class MField
     //
     function f_show($in_row_odd)
     {
+        $select_data = $this->m_parent_form->m_select_data;
+
         $str_additional_row = '';
 
         $row_class = 'row-2';
@@ -253,7 +256,14 @@ class MField
         {
             if (empty($_POST[$this->m_name]))
             {
-                $str_value = $this->m_default_value;
+                if (empty($select_data[$this->m_name]))
+                {
+                    $str_value = $this->m_default_value;
+                }
+                else
+                {
+                     $str_value = $select_data[$this->m_name];
+                }
             }
             else
             {
@@ -265,15 +275,55 @@ class MField
         else
         if ($this->m_link_type == MField::c_link_type_LIST)
         {
+            if (empty($_POST[$this->m_name]))
+            {
+                if (empty($select_data[$this->m_name]))
+                {
+                    $str_value = $this->m_default_value;
+                }
+                else
+                {
+                     $str_value = $select_data[$this->m_name];
+                }
+            }
+            else
+            {
+                $str_value = $_POST[$this->m_name];
+            }
+
+            //
             $str_control = '
                 <select name="'.$this->m_name.'">
-                    '.$this->m_link_value->f_show_list_from_table($_POST[$this->m_name]).'
+                    '.$this->m_link_value->f_show_list_from_table($str_value).'
                 </select>
             ';
         }
         else
         if ($this->m_link_type == MField::c_link_type_OBJECT)
         {
+            if (empty($_POST[$this->m_name]))
+            {
+                if (empty($select_data[$this->m_name]))
+                {
+                    //$str_value = $this->m_default_value; нет значения по умолчанию!!!
+                    unset($str_value);
+                }
+                else
+                {
+                    // формируем value для select по table_name,table_id,table_caption
+                     $str_value =
+                        $select_data[$this->m_link_value->object_table_name].','.
+                        $select_data[$this->m_name].','.
+                        $select_data[$this->m_link_value->list_value_name];
+                }
+            }
+            else
+            {
+                $str_value = $_POST[$this->m_name];
+            }
+
+
+            //
             $str_control = '
                 <script>
                   function on_select_'.$this->m_name.'(self)
@@ -285,22 +335,31 @@ class MField
                   }
                 </script>
                 <select name="'.$this->m_name.'" onchange="on_select_'.$this->m_name.'(this)">
-                    '.$this->m_link_value->f_show_list_obj_from_table($_POST[$this->m_name]).'
+                    '.$this->m_link_value->f_show_list_obj_from_table($str_value).'
                 </select>
             ';
 
             // вложенная форма
             $obj_str = '';
-            if (isset($_POST[$this->m_name]) && ($_POST[$this->m_name] != -1))
+            if (isset($str_value) && ($str_value != -1))
             {
-                $post_val = $this->m_link_value->f_get_value_from_post($_POST[$this->m_name]);
+                $post_val = $this->m_link_value->f_get_value_from_post($str_value);
 
                 //$form_name = 'MForm_' . $_POST[$this->m_name];
                 $form_name = 'MForm_' . $post_val[MLink_Object::c_get_value_from_post_TABLE_NAME];   // table_name
 
                 $frm = eval('$frm_new = new '.$form_name.'; return $frm_new;'); // создаем класс по имени
                 $frm->f_init();
-                $obj_str = $frm->f_show();
+
+                $obj_id_field = $select_data[$this->m_name.'_obj'];
+                if (empty($obj_id_field))
+                {
+                    $obj_str = $frm->f_show();
+                }
+                else
+                {
+                    $obj_str = $frm->f_show_update($obj_id_field);
+                }
             }
 
             // дополнительная строка для вложенной формы
@@ -315,8 +374,17 @@ class MField
         else
         if ($this->m_link_type == MField::c_link_type_AUTONAME)
         {
-            // не выводим для редактирования и просмотра (только в таблице)
-            $str_control = '';
+            if (empty($select_data[$this->m_name]))
+            {
+                // не выводим для редактирования и просмотра (только в таблице)
+                $str_control = '';
+            }
+            else
+            {
+                $str_value = $select_data[$this->m_name];
+            }
+
+            $str_control = '<input name="'.$this->m_name.'" size="105" maxlength="128" value="'.$str_value.'" type="text" disabled >';
         }
 
         //
@@ -519,7 +587,8 @@ class MField
         else
         if($this->m_link_type == MField::c_link_type_LIST)
         {
-            $out_str_select .= $this->m_link_value->list_table_name.'.'.$this->m_link_value->list_value_name.','; //.' AS '.$this->m_link_value->list_table_name.'_'.$this->m_link_value->list_value_name.',';
+            $out_str_select .= $this->m_link_value->list_table_name.'.'.$this->m_link_value->list_value_name.','
+                                .$this->m_link_value->list_table_name.'.'.$this->m_link_value->list_key_name.' AS '.$this->m_name.',';
 
             $out_str_from .= ' INNER JOIN '.$this->m_link_value->list_table_name.
                 ' ON '.$in_table_name.'.'.$this->m_name.'='. $this->m_link_value->list_table_name.'.'.$this->m_link_value->list_key_name;
@@ -530,7 +599,10 @@ class MField
         else
         if($this->m_link_type == MField::c_link_type_OBJECT)
         {
-            $out_str_select .= $this->m_link_value->list_table_name.'.'.$this->m_link_value->list_value_name.','; //.' AS '.$this->m_link_value->list_table_name.'_'.$this->m_link_value->list_value_name.',';
+            $out_str_select .= $this->m_link_value->list_table_name.'.'.$this->m_link_value->list_value_name.','
+                                .$this->m_link_value->list_table_name.'.'.$this->m_link_value->list_key_name.' AS '.$this->m_name.','
+                                .$this->m_link_value->list_table_name.'.'.$this->m_link_value->object_table_name.','
+                                .$in_table_name.'.'.$this->m_name.'_obj,';
 
             $out_str_from .= ' INNER JOIN '.$this->m_link_value->list_table_name.
                 ' ON '.$in_table_name.'.'.$this->m_name.'='. $this->m_link_value->list_table_name.'.'.$this->m_link_value->list_key_name;
@@ -578,11 +650,13 @@ class MForm
     var $m_name;        // имя таблицы в БД которую отображает форма (для html <form>)
     var $m_caption;
     var $m_fields = array();
+    var $m_select_data; // данные полученные селектом для полей формы
 
     function f_init(){} // Переопределяется в наследниках
 
     //--------------------------------------------------------------------------
     // показываем просто таблицу с контролами
+    // получаея информацию из переменных POST или $m_select_data или пусто
     function f_show()
     {
         $str_fields = '';
@@ -629,13 +703,24 @@ class MForm
         }
         else
 */
+        if ($in_cmd == 'insert')
+        {
+            return $this->f_show_root_insert();
+        }
+        else
         if ($in_cmd == 'insert_result')
         {
             return $this->f_show_root_insert_result();
         }
         else
+        if ($in_cmd == 'update')
         {
-            return $this->f_show_root_insert();
+            return $this->f_show_root_update();
+        }
+        else
+        if ($in_cmd == 'update_result')
+        {
+            return $this->f_show_root_update_result();
         }
 
     }
@@ -951,7 +1036,58 @@ class MForm
         $str_select = substr($str_select, 0, strlen($str_select)-1);
 
         $ret = 'SELECT '.$str_select.' FROM '.$str_from.
-                ' ORDER BY id DESC;';
+                ' ORDER BY '.$this->m_name.'.id DESC;';
+
+/*
+        $ret = '
+            SELECT `t_equipment`.`id`,
+                `t_equipment`.`t_equipment_a_name`,
+                `t_equipment`.`t_equipment_a_inv_num`,
+                `t_equipment`.`t_equipment_a_zavod_num`,
+                `t_equipment_state`.`t_equipment_state_a_name`,
+                `t_equipment_geo_place`.`t_equipment_geo_place_a_name`,
+                `t_equipment`.`link_org_owner`,
+                `t_equipment_type`.`t_equipment_type_a_name`,
+                `t_equipment`.`t_equipment_type_id_obj`
+            FROM `t_equipment`
+            INNER JOIN t_equipment_state
+            ON t_equipment.t_equipment_state_id = t_equipment_state.id
+            INNER JOIN t_equipment_geo_place
+            ON t_equipment.t_equipment_geo_place_id = t_equipment_geo_place.id
+            INNER JOIN t_equipment_type
+            ON t_equipment.t_equipment_type_id = t_equipment_type.id;
+        ';
+*/
+        //echo($ret);
+        return $ret;
+    }
+
+    //--------------------------------------------------------------------------
+    // Формируем select для объекта по id
+    function f_get_select_for_id
+    (
+        $in_obj_id
+    )
+    {
+        // Перебираем все поля формы
+        // и получаем select строку
+        $str_select = '';
+        $str_from = '';
+
+        //id
+        $str_select .= $this->m_name.'.id,';
+        $str_from .= $this->m_name.' ';
+
+        foreach ($this->m_fields as $field)
+        {
+            $field->f_get_str_for_sql_select($this->m_name, $str_select, $str_from);
+        }
+
+        // обрезаем последние запятые
+        $str_select = substr($str_select, 0, strlen($str_select)-1);
+
+        $ret = 'SELECT '.$str_select.' FROM '.$str_from.
+                ' WHERE '.$this->m_name.'.id='.$in_obj_id.';';
 
 /*
         $ret = '
@@ -1031,6 +1167,202 @@ class MForm
         return $res;
     }
 
+    //--------------------------------------------------------------------------
+    //
+    function f_show_update($in_id)
+    {
+        $res = '';
+        $in_page = $_GET['page'];
+
+        //-------
+        // Проверяем существует ли объект
+        $obj_id = intval($in_id);
+
+        // Запрос
+        $query = $this->f_get_select_for_id($obj_id);
+        echo($query);
+        $res .= $query;
+        $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+        // сохраняем запрос в форму для последующей визуализации
+        $this->m_select_data = mysql_fetch_array($q_res);
+
+        //if ( mysql_num_rows($q_res) == 0)
+        if ($this->m_select_data == false)
+        {
+            $result_color = 'red';
+            $result_msg = "Объекта с $this->m_name ID = $obj_id не существует!";
+            $res .= '
+            <div id="'.$this->m_name.'_msg" align="center" style="color:'.$result_color.'">'.$result_msg.'</div>
+            ';
+        }
+        else
+        {
+            $res .= $this->f_show();
+        }
+
+        return $res;
+    }
+
+
+    //--------------------------------------------------------------------------
+    //
+    function f_show_root_update()
+    {
+        $res = '';
+        $in_page = $_GET['page'];
+
+        //-------
+        // Проверяем существует ли объект
+        $obj_id = $_GET['obj_id'];
+        $obj_id = intval($obj_id);
+
+        // Запрос
+        $query = $this->f_get_select_for_id($obj_id);
+        echo($query);
+        $res .= $query;
+        $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+        // сохраняем запрос в форму для последующей визуализации
+        $this->m_select_data = mysql_fetch_array($q_res);
+
+        //if ( mysql_num_rows($q_res) == 0)
+        if ($this->m_select_data == false)
+        {
+            $result_color = 'red';
+            $result_msg = "Объекта с ID = $obj_id не существует!";
+            $res .= '
+            <div id="'.$this->m_name.'_msg" align="center" style="color:'.$result_color.'">'.$result_msg.'</div>
+            ';
+        }
+        else
+        {
+            $res .= $this->f_show_root_update_base($in_page);
+        }
+
+        return $res;
+    }
+
+    //--------------------------------------------------------------------------
+    //
+    function f_show_root_update_base
+    (
+        $in_page,
+        $in_result_color = 'black',
+        $in_result_msg = ''
+    )
+    {
+
+
+        //-------
+        // Получаем последние 10 объектов
+
+        // получаем заголовки таблицы
+        $k_table_objects_headers = count($this->m_fields) + 1;  // +id
+        $str_table_objects_headers = '';
+        // id
+        $str_table_objects_headers .= '<td>ID</td>';
+        foreach ($this->m_fields as $field)
+        {
+            $str_table_objects_headers .= '<td>'.$field->m_caption.'</td>';
+        }
+
+
+        // Получаем строки таблицы
+        //$query = "SELECT * FROM $this->m_name;";
+        $query = $this->f_get_select_for_form();
+        $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+        //$number = mysql_num_rows($q_res);
+
+        // формируем теги tr
+        $str_rows = '';
+        while ($row = mysql_fetch_array($q_res))
+        {
+            $bgcolor = '#FFFFFF';
+            if ($row['t_equipment_state_a_name'] == 'Исправен') $bgcolor = '#c9ccc4'; //'#d2f5b0';
+            else if ($row['t_equipment_state_a_name'] == 'Не исправен') $bgcolor = '#fcbdbd';
+            else if ($row['t_equipment_state_a_name'] == 'Ремонт') $bgcolor = '#fff494';
+
+
+            $str_rows .= '<tr border="1" bgcolor="'.$bgcolor.'" valign="top">';
+
+            // id
+            $str_rows .= '<td>'.$row['id'].'</td>';
+
+            // цикл по колонкам
+            foreach ($this->m_fields as $field)
+            {
+                //$str_rows .= '<td>'.$row[$field->m_name].'</td>';
+                $str_rows .= '<td>'.$row[$field->f_get_name_for_select_column()].'</td>';
+            }
+
+            $str_rows .= '</tr>';
+        }
+
+
+
+        // вывод
+        $res = '
+        <div align="center">
+            <form name="'.$this->m_name.'" method="post" enctype="multipart/form-data" action="plugin.php?page='.$in_page.'&cmd=insert_result">
+                <div id="'.$this->m_name.'_msg" align="center" style="color:'.$in_result_color.'">'.$in_result_msg.'</div>
+                <table class="width90" cellspacing="1">
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            '.$this->f_show().'
+                        </td>
+                    </tr>
+                    <tr class="row-1">
+                        <td class="category">
+                            Продолжить создание объектов
+                        </td>
+                        <td>
+                            <label><input tabindex="10" id="'.$this->m_name.'_continue" name="'.$this->m_name.'_continue" type="checkbox" '.$continue_operation.'> отметьте, если собираетесь создавать несколько объектов</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="left">
+                            <span class="required"> * Поле, обязательное для заполнения</span>
+                        </td>
+                        <td class="center">
+                            <input tabindex="11" class="button" value="Создать объект" type="submit">
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
+            </form>
+
+            <br>
+
+            <form name="'.$this->m_name.'_last_inserted" method="get" action="">
+            <table id="'.$this->m_name.'_obj_list" class="width100" cellspacing="1">
+            <tbody>
+            <tr>
+                <td class="form-title" colspan="'.$k_table_objects_headers.'">
+                    <span class="floatleft">
+                        Список объектов (1 - 3 / 3)
+                    </span>
+                </td>
+            </tr>
+            <tr class="row-category">
+                '.$str_table_objects_headers.'
+            </tr>
+
+            <tr class="spacer">
+                <td colspan="'.$k_table_objects_headers.'"></td>
+            </tr>
+            '.$str_rows.'
+            </tbody></table>
+            </form>
+
+        </div>
+        ';
+
+        return $res;
+    }
+
 }
 
 //==============================================================================
@@ -1042,6 +1374,7 @@ class MForm_t_equipment extends MForm
     {
         $this->m_name = "t_equipment";
         $this->m_caption = "Введите данные оборудования";
+        $this->m_select_data = $in_parent_select_data;
 
         $f = new MField;
         $f->m_name = 't_equipment_a_name';
@@ -1051,6 +1384,7 @@ class MForm_t_equipment extends MForm
         $f->m_type = MField::c_type_STRING;
         $f->m_link_type = MField::c_link_type_AUTONAME;
         $f->m_link_value = '';
+        $f->m_parent_form = $this;
         $this->m_fields[] = $f;
 
         $f = new MField;
@@ -1058,6 +1392,7 @@ class MForm_t_equipment extends MForm
         $f->m_caption = 'Инвентарный номер';
         $f->m_type = MField::c_type_STRING;
         $f->m_link_type = MField::c_link_type_NONE;
+        $f->m_parent_form = $this;
         $this->m_fields[] = $f;
 
         $f = new MField;
@@ -1065,6 +1400,7 @@ class MForm_t_equipment extends MForm
         $f->m_caption = 'Заводской номер';
         $f->m_type = MField::c_type_STRING;
         $f->m_link_type = MField::c_link_type_NONE;
+        $f->m_parent_form = $this;
         $this->m_fields[] = $f;
 
         $f = new MField;
@@ -1079,6 +1415,7 @@ class MForm_t_equipment extends MForm
         $list->list_key_name = 'id';
         $list->list_value_name = 't_equipment_state_a_name';
         $f->m_link_value = $list;
+        $f->m_parent_form = $this;
         $this->m_fields[] = $f;
 
         $f = new MField;
@@ -1093,6 +1430,7 @@ class MForm_t_equipment extends MForm
         $list->list_key_name = 'id';
         $list->list_value_name = 't_equipment_geo_place_a_name';
         $f->m_link_value = $list;
+        $f->m_parent_form = $this;
         $this->m_fields[] = $f;
 
         $f = new MField;
@@ -1108,6 +1446,7 @@ class MForm_t_equipment extends MForm
         $list->list_value_name = 't_equipment_type_a_name';
         $list->object_table_name = 't_equipment_type_link_t_name';
         $f->m_link_value = $list;
+        $f->m_parent_form = $this;
         $this->m_fields[] = $f;
     }
 }
@@ -1135,6 +1474,7 @@ class MForm_t_equipment_type_controller extends MForm
         $list->list_key_name = 'id';
         $list->list_value_name = 't_controller_type_a_name';
         $f->m_link_value = $list;
+        $f->m_parent_form = $this;
         $this->m_fields[] = $f;
     }
 }
@@ -1161,6 +1501,7 @@ class MForm_t_equipment_type_pult extends MForm
         $list->list_key_name = 'id';
         $list->list_value_name = 't_pult_type_a_name';
         $f->m_link_value = $list;
+        $f->m_parent_form = $this;
         $this->m_fields[] = $f;
     }
 }
@@ -1187,6 +1528,7 @@ class MForm_t_equipment_type_multipleksor extends MForm
         $list->list_key_name = 'id';
         $list->list_value_name = 't_multipleksor_type_a_name';
         $f->m_link_value = $list;
+        $f->m_parent_form = $this;
         $this->m_fields[] = $f;
     }
 }
