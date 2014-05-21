@@ -928,7 +928,16 @@ function bug_is_overdue_get_class2( $p_bug_id, &$rest_due_date_str )
 
         if ($t_rest > 86400)
         {
-            $rest_due_date_str = gmdate("jд.", $t_rest-86400) . gmdate("H:i", $t_rest);
+            //$dbg = gmdate("j", $t_rest-86400);
+
+            $days = floor($t_rest / 86400);
+            $ostatok = $t_rest - ($days * 86400);
+            $hours = floor($ostatok / 3600);
+            $ostatok = $ostatok - ($hours * 3600);
+            $minutes = floor($ostatok / 60);
+
+            //$rest_due_date_str = gmdate("jд.", $t_rest-86400) . gmdate("H:i", $t_rest);
+            $rest_due_date_str = sprintf("%02dд.%02d:%02d", $days, $hours, $minutes);
         }
         else
         {

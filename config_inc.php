@@ -127,8 +127,9 @@ $g_log_destination = 'file:C:\MyIISServices\mantis\logs\mantisbt2.log';
 	 */
 	$g_wiki_engine_url = 'http://192.168.18.10/wiki/';
 
-	$g_cookie_domain = '.192.168.18.10';   // So wiki and bugs can share cookie info
-	#$g_cookie_domain = '.servermcis';   // So wiki and bugs can share cookie info
+	//$g_cookie_domain = '.192.168.18.10';   // So wiki and bugs can share cookie info
+	//#$g_cookie_domain = '.servermcis';   // So wiki and bugs can share cookie info
+    $g_cookie_domain = '';  // ДЛЯ DEBUGA!!!!
 
 
 	/**
