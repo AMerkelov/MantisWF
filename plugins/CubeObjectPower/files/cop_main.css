@@ -1,1 +1,8 @@
 .cop_page_caption			{ font-size: 20pt; text-align: center; font-weight: bold; }
+
+.cop_control_readonly
+{
+    color:blue;
+    background-color:rgb(210, 216, 237);
+}
+

@@ -65,7 +65,7 @@ echo
 ('
 <table class="width100" cellspacing="0"><tbody><tr><td class="menu">
     <a href="'.plugin_page("cop_page_main").'">Главная</a> |
-    <a href="'.plugin_page("cop_page_main").'">Поиск оборудования</a> |
+    <a href="'.plugin_page("cop_page_obj_t_equipment").'&cmd=search">Поиск оборудования</a> |
     <a href="'.plugin_page("cop_page_equipment_add").'">Добавление оборудования</a> |
     <a href="'.plugin_page("cop_page_main").'">Статистика</a> |
     <a href="'.plugin_page("cop_page_main").'">Конфигурация</a> |

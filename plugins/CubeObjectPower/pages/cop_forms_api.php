@@ -22,7 +22,8 @@ require_once( 'cop_db_api.php' );
         // т.к. в form_table может так же передаваться ее table_id
         $get_val = explode(',', $_GET['form_table']);
 
-        $form_name = 'MForm_' . $get_val[MLink_Object::c_get_value_from_post_TABLE_NAME];   // table_name
+        $form_table = $get_val[MLink_Object::c_get_value_from_post_TABLE_NAME];   // table_name
+        $form_name = 'MForm_' . $form_table;
 
 
         $elem_id = $_GET['elem_id'];
@@ -94,9 +95,17 @@ class MLink_List //extends MLink
         $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
 
         //$number = mysql_num_rows($q_res);
+        $cmd = $_GET['cmd'];
 
         // пустое значение
-        $str_res .= '<option value="-1"></option>';
+        if (($cmd == 'read' || $cmd == 'delete') && ($selected == ''))
+        {
+            // при readonly - не выводим
+        }
+        else
+        {
+            $str_res .= '<option value="-1"></option>';
+        }
 
         // из БД
         while ($row = mysql_fetch_array($q_res))
@@ -110,8 +119,15 @@ class MLink_List //extends MLink
                 $selected = 'selected="selected"';
             }
 
-            // value= [0]=id, [1]=значение
-            $str_res .= '<option '.$selected.' value="'.$row[$this->list_key_name].','.$row[$this->list_value_name].'">'.$row[$this->list_value_name].'</option>';
+            if (($cmd == 'read' || $cmd == 'delete') && ($selected == ''))
+            {
+                // при readonly - не выводим
+            }
+            else
+            {
+                // value= [0]=id, [1]=значение
+                $str_res .= '<option '.$selected.' value="'.$row[$this->list_key_name].','.$row[$this->list_value_name].'">'.$row[$this->list_value_name].'</option>';
+            }
         }
 
 
@@ -157,9 +173,17 @@ class MLink_Object //extends MLink
         $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
 
         //$number = mysql_num_rows($q_res);
+        $cmd = $_GET['cmd'];
 
         // пустое значение
-        $str_res .= '<option value="-1"></option>';
+        if (($cmd == 'read' || $cmd == 'delete') && ($selected == ''))
+        {
+            // при readonly - не выводим
+        }
+        else
+        {
+            $str_res .= '<option value="-1"></option>';
+        }
 
         // из БД
         while ($row = mysql_fetch_array($q_res))
@@ -173,11 +197,18 @@ class MLink_Object //extends MLink
                 $selected = 'selected="selected"';
             }
 
-            // value="t_equipment_type_controller,1,Тип контроллера" - передаем сразу название таблицы, ее id и ее название
-            // [0] - table_name
-            // [1] - table_id
-            // [2] - table_caption
-            $str_res .= '<option '.$selected.' value="'.$row[$this->object_table_name].','.$row["id"].','.$row[$this->list_value_name].'">'.$row[$this->list_value_name].'</option>';
+            if (($cmd == 'read' || $cmd == 'delete') && ($selected == ''))
+            {
+                // при readonly - не выводим
+            }
+            else
+            {
+                // value="t_equipment_type_controller,1,Тип контроллера" - передаем сразу название таблицы, ее id и ее название
+                // [0] - table_name
+                // [1] - table_id
+                // [2] - table_caption
+                $str_res .= '<option '.$selected.' value="'.$row[$this->object_table_name].','.$row["id"].','.$row[$this->list_value_name].'">'.$row[$this->list_value_name].'</option>';
+            }
         }
 
 
@@ -234,7 +265,9 @@ class MField
     //
     function f_show($in_row_odd)
     {
-        $select_data = $this->m_parent_form->m_select_data;
+        $ret = '';
+
+        $select_data = &$this->m_parent_form->m_select_data;
 
         $str_additional_row = '';
 
@@ -250,10 +283,18 @@ class MField
             $str_required = '<span class="required">*</span>';
         }
 
+        $cmd = $_GET['cmd'];
+
         $str_control = '';
         $str_value = '';
         if ($this->m_link_type == MField::c_link_type_NONE)
         {
+            $my_readonly = '';
+            if ($cmd == 'read' || $cmd == 'delete')
+            {
+                $my_readonly = 'class="cop_control_readonly" readonly';
+            }
+
             if (empty($_POST[$this->m_name]))
             {
                 if (empty($select_data[$this->m_name]))
@@ -270,11 +311,17 @@ class MField
                 $str_value = $_POST[$this->m_name];
             }
 
-            $str_control = '<input name="'.$this->m_name.'" size="105" maxlength="128" value="'.$str_value.'" type="text">';
+            $str_control = '<input name="'.$this->m_name.'" size="105" maxlength="128" value="'.$str_value.'" type="text" '.$my_readonly.'>';
         }
         else
         if ($this->m_link_type == MField::c_link_type_LIST)
         {
+            $my_readonly = '';
+            if ($cmd == 'read' || $cmd == 'delete')
+            {
+                $my_readonly = 'class="cop_control_readonly"';
+            }
+
             if (empty($_POST[$this->m_name]))
             {
                 if (empty($select_data[$this->m_name]))
@@ -283,7 +330,7 @@ class MField
                 }
                 else
                 {
-                     $str_value = $select_data[$this->m_name];
+                    $str_value = $select_data[$this->m_name];
                 }
             }
             else
@@ -291,9 +338,10 @@ class MField
                 $str_value = $_POST[$this->m_name];
             }
 
+
             //
             $str_control = '
-                <select name="'.$this->m_name.'">
+                <select name="'.$this->m_name.'" '.$my_readonly.'>
                     '.$this->m_link_value->f_show_list_from_table($str_value).'
                 </select>
             ';
@@ -301,6 +349,12 @@ class MField
         else
         if ($this->m_link_type == MField::c_link_type_OBJECT)
         {
+            $my_readonly = '';
+            if ($cmd == 'read' || $cmd == 'delete')
+            {
+                $my_readonly = 'class="cop_control_readonly"';
+            }
+
             if (empty($_POST[$this->m_name]))
             {
                 if (empty($select_data[$this->m_name]))
@@ -334,7 +388,7 @@ class MField
                     runAjaxJS(self, funk, params, action);
                   }
                 </script>
-                <select name="'.$this->m_name.'" onchange="on_select_'.$this->m_name.'(this)">
+                <select name="'.$this->m_name.'" onchange="on_select_'.$this->m_name.'(this)" '.$my_readonly.'>
                     '.$this->m_link_value->f_show_list_obj_from_table($str_value).'
                 </select>
             ';
@@ -374,6 +428,7 @@ class MField
         else
         if ($this->m_link_type == MField::c_link_type_AUTONAME)
         {
+
             if (empty($select_data[$this->m_name]))
             {
                 // не выводим для редактирования и просмотра (только в таблице)
@@ -381,10 +436,29 @@ class MField
             }
             else
             {
-                $str_value = $select_data[$this->m_name];
-            }
+                $my_readonly = 'class="cop_control_readonly" readonly';
 
-            $str_control = '<input name="'.$this->m_name.'" size="105" maxlength="128" value="'.$str_value.'" type="text" disabled >';
+                // Если есть AUTONAME - то выводим и ID объекта
+                $str_value = $select_data['id'];    // id передается в селекте для autuname
+                $str_control = '<input name="'.$this->m_name.'_autoname_id" size="105" maxlength="128" value="'.$str_value.'" type="text" '.$my_readonly.' >';
+
+                // доп строка для ID
+                $ret .= '
+                        <tr class="'.$row_class.'">
+                            <td class="category" width="30%">
+                                OBJ_ID
+                            </td>
+                            <td width="70%">
+                            '.$str_control.'
+                            </td>
+                        </tr>
+                    ';
+
+                //
+                // autoname
+                $str_value = $select_data[$this->m_name];
+                $str_control = '<input name="'.$this->m_name.'" size="105" maxlength="128" value="'.$str_value.'" type="text" '.$my_readonly.' >';
+            }
         }
 
         //
@@ -393,8 +467,8 @@ class MField
             return '';
         }
 
-        //
-        return('
+        // осговная строка для поля
+        $ret .= '
                 <tr class="'.$row_class.'">
                     <td class="category" width="30%">
                         '. $str_required . $this->m_caption.'
@@ -404,7 +478,9 @@ class MField
                     </td>
                 </tr>
                 '.$str_additional_row.'
-            ');
+            ';
+
+        return $ret;
     }
 
     //--------------------------------------------------------------------------
@@ -539,31 +615,106 @@ class MField
         {
             $post_val = $this->m_link_value->f_get_value_from_post($_POST[$this->m_name]);
 
-            //$form_name = 'MForm_' . $_POST[$this->m_name];
-            $form_name = 'MForm_' . $post_val[MLink_Object::c_get_value_from_post_TABLE_NAME];   // table_name
+            $table_name = $post_val[MLink_Object::c_get_value_from_post_TABLE_NAME]; // table_name
+            $form_name = 'MForm_' . $table_name;
 
+            // создаем подформу по table_name
             $frm = eval('$frm_new = new '.$form_name.'; return $frm_new;'); // создаем класс по имени
             $frm->f_init();
 
             $out_values_array2 = array();
 
+            // вызываем рекурсию
             $error_str = $frm->f_get_values_array_for_sql($out_values_array2);
 
             // если в sql ошибок нет - выполняем запрос и создаем вложенный объект
             // получаем id созданного подобъекта и передаем его в наш текущий запрос
             if ($error_str == '')
             {
-                $query = $frm->f_get_sql_insert($out_values_array2);
+                // если в режиме update
+              if (isset($_GET['cmd']))
+              {
+                if ($_GET['cmd'] == 'update_result')
+                {
+                    // обновляемый объект
+                    $exist_obj_id = $this->m_parent_form->m_select_data[$this->m_name]; // AS key_name  $this->m_link_value->list_key_name
 
-                // выполняем запрос
-                $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+                    // проверяем изменение названия таблицы (типа объекта)
+                    // в POST относительно БД
+                    // если разные - то удаляем старый и insertim новый
+                    $table_name2 = $this->m_parent_form->m_select_data[$this->m_link_value->object_table_name];
+                    if ($table_name != $table_name2)
+                    {
+                        //---
+                        // удаляем старый подобъект
+                        $sub_obj_id = $this->m_parent_form->m_select_data[$this->m_name.'_obj'];
 
-                // получаем id созданного объекта
-                $last_id = mysql_insert_id();
-                //$last_id = 7777;
+                        $form_name_old = 'MForm_' . $table_name2;
+                        $frm_old = eval('$frm_new = new '.$form_name_old.'; return $frm_new;'); // создаем класс по имени
+                        $frm_old->f_init();
 
-                // формируем поле связанное со вложенным объектом
-                $out_values_array[$this->m_name . '_obj'] = $last_id;
+                        $query = $frm_old->f_get_sql_delete_for_id($out_values_array2, $sub_obj_id);
+
+                        $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+                        //---
+                        // инсертим новый
+                        $query = $frm->f_get_sql_insert($out_values_array2);
+
+                        // выполняем запрос
+                        $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+                        // получаем id созданного объекта
+                        $last_id = mysql_insert_id();
+                        //$last_id = 7777;
+
+                        // формируем поле связанное со вложенным объектом
+                        $out_values_array[$this->m_name . '_obj'] = $last_id;
+                    }
+                    // тип объекта не изменился - просто апдейтим его
+                    // по его id в БД
+                    else
+                    {
+                        //
+                        $query = $frm->f_get_sql_update_for_id($out_values_array2, $exist_obj_id);
+
+                        // выполняем запрос
+                        $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+                        // НЕ МЕНЯЕМ поле связанное со вложенным объектом
+                        //$out_values_array[$this->m_name . '_obj'] = $exist_obj_id;
+                    }
+
+                }
+                // режим простого insert
+                else
+                if ($_GET['cmd'] == 'insert_result')
+                {
+                    $query = $frm->f_get_sql_insert($out_values_array2);
+
+                    // выполняем запрос
+                    $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+                    // получаем id созданного объекта
+                    $last_id = mysql_insert_id();
+                    //$last_id = 7777;
+
+                    // формируем поле связанное со вложенным объектом
+                    $out_values_array[$this->m_name . '_obj'] = $last_id;
+                }
+                else
+                if ($_GET['cmd'] == 'delete_result')
+                {
+                    // удаляемый подобъект
+                    $sub_obj_id = $this->m_parent_form->m_select_data[$this->m_name.'_obj'];
+
+                    //
+                    $query = $frm->f_get_sql_delete_for_id($out_values_array2, $sub_obj_id);
+
+                    // выполняем запрос
+                    $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+                }
+              }
             }
         }
 
@@ -610,7 +761,8 @@ class MField
         else
         if ($this->m_link_type == MField::c_link_type_AUTONAME)
         {
-            $out_str_select .= $in_table_name.'.'.$this->m_name.','; //' AS '.$in_table_name.'_'.$this->m_name.',';
+            $out_str_select .= $in_table_name.'.id,'
+                                .$in_table_name.'.'.$this->m_name.','; //' AS '.$in_table_name.'_'.$this->m_name.',';
             //$out_str_from .= '';
         }
     }
@@ -703,6 +855,17 @@ class MForm
         }
         else
 */
+
+        if ($in_cmd == 'read')
+        {
+            return $this->f_show_root_read();
+        }
+        else
+        if ($in_cmd == 'search')
+        {
+            return $this->f_show_root_search();
+        }
+        else
         if ($in_cmd == 'insert')
         {
             return $this->f_show_root_insert();
@@ -722,7 +885,26 @@ class MForm
         {
             return $this->f_show_root_update_result();
         }
-
+        else
+        if ($in_cmd == 'update_next')
+        {
+            return $this->f_show_root_update_next();
+        }
+        else
+        if ($in_cmd == 'delete')
+        {
+            return $this->f_show_root_delete();
+        }
+        else
+        if ($in_cmd == 'delete_result')
+        {
+            return $this->f_show_root_delete_result();
+        }
+        else
+        if ($in_cmd == 'delete_next')
+        {
+            return $this->f_show_root_delete_next();
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -929,7 +1111,7 @@ class MForm
                 $query = $this->f_get_sql_insert($values_array);
 
                 // Выполняем запрос
-                $result_msg .= '<br>req='.$query;
+                //$result_msg .= '<br>req='.$query;
                 $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
 
                 // Поучаем ID созданного объекта
@@ -1180,8 +1362,8 @@ class MForm
 
         // Запрос
         $query = $this->f_get_select_for_id($obj_id);
-        echo($query);
-        $res .= $query;
+
+        //$res .= $query;
         $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
 
         // сохраняем запрос в форму для последующей визуализации
@@ -1219,8 +1401,8 @@ class MForm
 
         // Запрос
         $query = $this->f_get_select_for_id($obj_id);
-        echo($query);
-        $res .= $query;
+
+        //$res .= $query;
         $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
 
         // сохраняем запрос в форму для последующей визуализации
@@ -1305,7 +1487,7 @@ class MForm
         // вывод
         $res = '
         <div align="center">
-            <form name="'.$this->m_name.'" method="post" enctype="multipart/form-data" action="plugin.php?page='.$in_page.'&cmd=insert_result">
+            <form name="'.$this->m_name.'" method="post" enctype="multipart/form-data" action="plugin.php?page='.$in_page.'&cmd=update_result&obj_id='.$_GET['obj_id'].'">
                 <div id="'.$this->m_name.'_msg" align="center" style="color:'.$in_result_color.'">'.$in_result_msg.'</div>
                 <table class="width90" cellspacing="1">
                 <tbody>
@@ -1314,20 +1496,12 @@ class MForm
                             '.$this->f_show().'
                         </td>
                     </tr>
-                    <tr class="row-1">
-                        <td class="category">
-                            Продолжить создание объектов
-                        </td>
-                        <td>
-                            <label><input tabindex="10" id="'.$this->m_name.'_continue" name="'.$this->m_name.'_continue" type="checkbox" '.$continue_operation.'> отметьте, если собираетесь создавать несколько объектов</label>
-                        </td>
-                    </tr>
                     <tr>
                         <td class="left">
                             <span class="required"> * Поле, обязательное для заполнения</span>
                         </td>
                         <td class="center">
-                            <input tabindex="11" class="button" value="Создать объект" type="submit">
+                            <input tabindex="11" class="button" value="Изменить объект" type="submit">
                         </td>
                     </tr>
                 </tbody>
@@ -1363,6 +1537,749 @@ class MForm
         return $res;
     }
 
+    //--------------------------------------------------------------------------
+    //
+    function f_show_root_update_result()
+    {
+        $result_msg = 'Операция выполнена успешно!';
+        $result_color = "green";
+        $res = '';
+
+        $in_page = $_GET['page'];
+
+        $obj_id = $_GET['obj_id'];
+        $obj_id = intval($obj_id);
+
+        // проверяем заполненность необходимых полей
+        $is_required = $this->f_test_reqired_fields();
+
+        // обработка
+        do
+        {
+            // проверяем обязательные поля
+            if ($is_required['result'] == false)
+            {
+                $result_msg = $is_required['msg_err'];
+                $result_color = "red";
+
+                $res = $this->f_show_root_update_base($in_page, $result_color, $result_msg);
+                break;
+            }
+
+
+            //------
+            // Получаем данные объекта из БД
+            // для определения изменений в update
+            // Запрос
+            $query = $this->f_get_select_for_id($obj_id);
+
+            //$res .= $query;
+            $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+            // сохраняем запрос в форму для последующей визуализации
+            $this->m_select_data = mysql_fetch_array($q_res);
+
+            //if ( mysql_num_rows($q_res) == 0)
+            if ($this->m_select_data == false)
+            {
+                $result_color = 'red';
+                $result_msg = "Объекта с ID = $obj_id не существует!";
+                $res .= '
+                <div id="'.$this->m_name.'_msg" align="center" style="color:'.$result_color.'">'.$result_msg.'</div>
+                ';
+            }
+
+            //------
+            // Формируем запрос
+            $values_array = array();
+            $error_str = $this->f_get_values_array_for_sql($values_array);
+
+            if ($error_str != '')
+            {
+                // ошибка формата данных контрола
+                $result_msg = $error_str;
+                $result_color = "red";
+
+                $res = $this->f_show_root_update_base($in_page, $result_color, $result_msg);
+                break;
+            }
+
+            //
+            $query = $this->f_get_sql_update_for_id($values_array, $obj_id);
+
+
+            // Выполняем запрос
+            //$result_msg .= '<br>req='.$query;
+            $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+            $result_msg .= '<br>ID измененного объекта: <span style="font-size:large">'.$obj_id.'</span>';
+
+            $res = '
+            <div align="center">
+                <form name="'.$this->m_name.'" method="post" enctype="multipart/form-data" action="'.plugin_page("cop_page_obj_".$this->m_name.".php").'&cmd=update_next">
+                    <div id="'.$this->m_name.'_msg" align="center" style="color:'.$result_color.'">'.$result_msg.'</div>
+                    <div class="center">
+                        <input tabindex="11" class="button" value="Изменить еще один объект" type="submit">
+                    </td>
+                </form>
+            </div>
+            ';
+
+        }while(false);
+
+
+
+        return $res;
+    }
+
+    //--------------------------------------------------------------------------
+    //
+    function f_show_root_update_next()
+    {
+        $ret = '
+        <br>
+        <div align="center">
+        <form name="input_edit_object_id" method="get" enctype="multipart/form-data" action="plugin.php">
+        <input type="hidden" name="page" value="CubeObjectPower/cop_page_obj_'.$this->m_name.'.php">
+        <input type="hidden" name="cmd" value="update">
+        <table class="width90" cellspacing="1">
+            <tbody>
+            <tr>
+                <td class="form-title" colspan="2">
+                    Введите ID наклейки
+                </td>
+            </tr>
+            <tr class="row-1">
+                <td class="category" width="30%">
+                    <span class="required">*</span>ID наклейки
+                </td>
+                <td width="70%">
+                    <input tabindex="1" name="obj_id" size="105" maxlength="128" value="" type="text">
+                </td>
+            </tr>
+            <tr>
+                <td class="left">
+                    <span class="required"> * Поле, обязательное для заполнения</span>
+                </td>
+                <td class="center">
+                    <input tabindex="2" class="button" value="Редактировать объект" type="submit">
+                </td>
+            </tr>
+        </tbody></table>
+        </form>
+        </div>
+        ';
+
+        return $ret;
+    }
+
+
+    // Формируем полный апдейт для формы
+    function f_get_sql_update_for_id
+    (
+        & $in_values_array,  // по ссылки чтоб не копировать лишний раз
+        $in_obj_id
+    )
+    {
+
+        $str_values = '';
+
+
+        foreach ($in_values_array as $var => $value)
+        {
+            $str_values .= $var.'='.$value.',';
+        }
+
+        // обрезаем последние запятые
+        $str_values = substr($str_values, 0, strlen($str_values)-1);
+
+        $res = 'UPDATE '.$this->m_name. ' SET '.$str_values.
+                ' WHERE '.$this->m_name.'.id='.$in_obj_id.';';
+
+        return $res;
+    }
+
+    // Формируем полный апдейт для формы
+    function f_get_sql_delete_for_id
+    (
+        & $in_values_array,  // по ссылки чтоб не копировать лишний раз
+        $in_obj_id
+    )
+    {
+        $res = 'DELETE FROM '.$this->m_name.
+                ' WHERE '.$this->m_name.'.id='.$in_obj_id.';';
+
+        echo($res);
+        return $res;
+    }
+
+    //--------------------------------------------------------------------------
+    //
+    function f_show_root_search()
+    {
+        $res = '';
+        $in_page = $_GET['page'];
+
+        $res .= $this->f_show_root_search_base($in_page);
+
+        return $res;
+    }
+
+
+    //--------------------------------------------------------------------------
+    //
+    function f_show_root_search_base
+    (
+        $in_page,
+        $in_result_color = 'black',
+        $in_result_msg = ''
+    )
+    {
+        //-------
+        // Получаем последние 10 объектов
+
+        // получаем заголовки таблицы
+        $k_table_objects_headers = count($this->m_fields) + 1;  // +id
+        $str_table_objects_headers = '';
+        // id
+        $str_table_objects_headers .= '<td>ID</td>';
+        foreach ($this->m_fields as $field)
+        {
+            $str_table_objects_headers .= '<td>'.$field->m_caption.'</td>';
+        }
+
+
+        // Получаем строки таблицы
+        //$query = "SELECT * FROM $this->m_name;";
+        $query = $this->f_get_select_for_form();
+        $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+        //$number = mysql_num_rows($q_res);
+
+        // формируем теги tr
+        $str_rows = '';
+        while ($row = mysql_fetch_array($q_res))
+        {
+            $bgcolor = '#FFFFFF';
+            if ($row['t_equipment_state_a_name'] == 'Исправен') $bgcolor = '#c9ccc4'; //'#d2f5b0';
+            else if ($row['t_equipment_state_a_name'] == 'Не исправен') $bgcolor = '#fcbdbd';
+            else if ($row['t_equipment_state_a_name'] == 'Ремонт') $bgcolor = '#fff494';
+
+
+            $str_rows .= '<tr border="1" bgcolor="'.$bgcolor.'" valign="top">';
+
+            // id
+            $str_rows .= '<td><a href="'.plugin_page( 'cop_page_obj_'.$this->m_name.'.php' ).'&cmd=read&obj_id='.$row['id']
+                        .'">'.$row['id'].'</a></td>';
+
+            // цикл по колонкам
+            foreach ($this->m_fields as $field)
+            {
+                //$str_rows .= '<td>'.$row[$field->m_name].'</td>';
+                $str_rows .= '<td>'.$row[$field->f_get_name_for_select_column()].'</td>';
+            }
+
+            $str_rows .= '</tr>';
+        }
+
+
+
+        // вывод
+        $res = '
+        <div align="center">
+            <form name="'.$this->m_name.'" method="post" enctype="multipart/form-data" action="plugin.php?page='.$in_page.'&cmd=update_result&obj_id='.$_GET['obj_id'].'">
+                <div id="'.$this->m_name.'_msg" align="center" style="color:'.$in_result_color.'">'.$in_result_msg.'</div>
+                <table class="width90" cellspacing="1">
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            '.$this->f_show().'
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="left">
+                            <span class="required"> * Поле, обязательное для заполнения</span>
+                        </td>
+                        <td class="center">
+                            <input tabindex="11" class="button" value="Изменить объект" type="submit">
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
+            </form>
+
+            <br>
+
+            <form name="'.$this->m_name.'_last_inserted" method="get" action="">
+            <table id="'.$this->m_name.'_obj_list" class="width100" cellspacing="1">
+            <tbody>
+            <tr>
+                <td class="form-title" colspan="'.$k_table_objects_headers.'">
+                    <span class="floatleft">
+                        Список объектов (1 - 3 / 3)
+                    </span>
+                </td>
+            </tr>
+            <tr class="row-category">
+                '.$str_table_objects_headers.'
+            </tr>
+
+            <tr class="spacer">
+                <td colspan="'.$k_table_objects_headers.'"></td>
+            </tr>
+            '.$str_rows.'
+            </tbody></table>
+            </form>
+
+        </div>
+        ';
+
+        return $res;
+    }
+
+    //--------------------------------------------------------------------------
+    //
+    function f_show_root_read()
+    {
+        $res = '';
+        $in_page = $_GET['page'];
+
+        //-------
+        // Проверяем существует ли объект
+        $obj_id = $_GET['obj_id'];
+        $obj_id = intval($obj_id);
+
+        // Запрос
+        $query = $this->f_get_select_for_id($obj_id);
+
+        //$res .= $query;
+        $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+        // сохраняем запрос в форму для последующей визуализации
+        $this->m_select_data = mysql_fetch_array($q_res);
+
+        //if ( mysql_num_rows($q_res) == 0)
+        if ($this->m_select_data == false)
+        {
+            $result_color = 'red';
+            $result_msg = "Объекта с ID = $obj_id не существует!";
+            $res .= '
+            <div id="'.$this->m_name.'_msg" align="center" style="color:'.$result_color.'">'.$result_msg.'</div>
+            ';
+        }
+        else
+        {
+            $res .= $this->f_show_root_read_base($in_page);
+        }
+
+        return $res;
+    }
+
+    //--------------------------------------------------------------------------
+    //
+    function f_show_root_read_base
+    (
+        $in_page,
+        $in_result_color = 'black',
+        $in_result_msg = ''
+    )
+    {
+
+
+        //-------
+        // Получаем последние 10 объектов
+
+        // получаем заголовки таблицы
+        $k_table_objects_headers = count($this->m_fields) + 1;  // +id
+        $str_table_objects_headers = '';
+        // id
+        $str_table_objects_headers .= '<td>ID</td>';
+        foreach ($this->m_fields as $field)
+        {
+            $str_table_objects_headers .= '<td>'.$field->m_caption.'</td>';
+        }
+
+
+        // Получаем строки таблицы
+        //$query = "SELECT * FROM $this->m_name;";
+        $query = $this->f_get_select_for_form();
+        $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+        //$number = mysql_num_rows($q_res);
+
+        // формируем теги tr
+        $str_rows = '';
+        while ($row = mysql_fetch_array($q_res))
+        {
+            $bgcolor = '#FFFFFF';
+            if ($row['t_equipment_state_a_name'] == 'Исправен') $bgcolor = '#c9ccc4'; //'#d2f5b0';
+            else if ($row['t_equipment_state_a_name'] == 'Не исправен') $bgcolor = '#fcbdbd';
+            else if ($row['t_equipment_state_a_name'] == 'Ремонт') $bgcolor = '#fff494';
+
+
+            $str_rows .= '<tr border="1" bgcolor="'.$bgcolor.'" valign="top">';
+
+            // id
+            $str_rows .= '<td><a href="'.plugin_page( 'cop_page_obj_'.$this->m_name.'.php' ).'&cmd=read&obj_id='.$row['id']
+                        .'">'.$row['id'].'</a></td>';
+
+            // цикл по колонкам
+            foreach ($this->m_fields as $field)
+            {
+                //$str_rows .= '<td>'.$row[$field->m_name].'</td>';
+                $str_rows .= '<td>'.$row[$field->f_get_name_for_select_column()].'</td>';
+            }
+
+            $str_rows .= '</tr>';
+        }
+
+
+
+        // вывод
+        $res = '
+        <div align="center">
+            <form name="'.$this->m_name.'" method="post" enctype="multipart/form-data" action="plugin.php?page='.$in_page.'&cmd=insert">
+                <div id="'.$this->m_name.'_msg" align="center" style="color:'.$in_result_color.'">'.$in_result_msg.'</div>
+                <table class="width90" cellspacing="1">
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            '.$this->f_show().'
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="left">
+                            <span class="required"> * Поле, обязательное для заполнения</span>
+                        </td>
+                        <td class="center">
+                            <input class="button" value="Клонировать" type="submit">
+                            <input class="button" value="Изменить" type="button" onclick="location.href=\'plugin.php?page='.$in_page.'&cmd=update&obj_id='.$_GET['obj_id'].'\';">
+                            <input class="button" value="Удалить" type="button" onclick="location.href=\'plugin.php?page='.$in_page.'&cmd=delete&obj_id='.$_GET['obj_id'].'\';">
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
+            </form>
+
+            <br>
+
+            <form name="'.$this->m_name.'_last_inserted" method="get" action="">
+            <table id="'.$this->m_name.'_obj_list" class="width100" cellspacing="1">
+            <tbody>
+            <tr>
+                <td class="form-title" colspan="'.$k_table_objects_headers.'">
+                    <span class="floatleft">
+                        Список объектов (1 - 3 / 3)
+                    </span>
+                </td>
+            </tr>
+            <tr class="row-category">
+                '.$str_table_objects_headers.'
+            </tr>
+
+            <tr class="spacer">
+                <td colspan="'.$k_table_objects_headers.'"></td>
+            </tr>
+            '.$str_rows.'
+            </tbody></table>
+            </form>
+
+        </div>
+        ';
+
+        return $res;
+    }
+
+    //--------------------------------------------------------------------------
+    //
+    function f_show_root_delete()
+    {
+        $res = '';
+        $in_page = $_GET['page'];
+
+        //-------
+        // Проверяем существует ли объект
+        $obj_id = $_GET['obj_id'];
+        $obj_id = intval($obj_id);
+
+        // Запрос
+        $query = $this->f_get_select_for_id($obj_id);
+
+        //$res .= $query;
+        $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+        // сохраняем запрос в форму для последующей визуализации
+        $this->m_select_data = mysql_fetch_array($q_res);
+
+        //if ( mysql_num_rows($q_res) == 0)
+        if ($this->m_select_data == false)
+        {
+            $result_color = 'red';
+            $result_msg = "Объекта с ID = $obj_id не существует!";
+            $res .= '
+            <div id="'.$this->m_name.'_msg" align="center" style="color:'.$result_color.'">'.$result_msg.'</div>
+            ';
+        }
+        else
+        {
+            $res .= $this->f_show_root_delete_base($in_page);
+        }
+
+        return $res;
+    }
+
+
+    //--------------------------------------------------------------------------
+    //
+    function f_show_root_delete_base
+    (
+        $in_page,
+        $in_result_color = 'black',
+        $in_result_msg = ''
+    )
+    {
+
+
+        //-------
+        // Получаем последние 10 объектов
+
+        // получаем заголовки таблицы
+        $k_table_objects_headers = count($this->m_fields) + 1;  // +id
+        $str_table_objects_headers = '';
+        // id
+        $str_table_objects_headers .= '<td>ID</td>';
+        foreach ($this->m_fields as $field)
+        {
+            $str_table_objects_headers .= '<td>'.$field->m_caption.'</td>';
+        }
+
+
+        // Получаем строки таблицы
+        //$query = "SELECT * FROM $this->m_name;";
+        $query = $this->f_get_select_for_form();
+        $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+        //$number = mysql_num_rows($q_res);
+
+        // формируем теги tr
+        $str_rows = '';
+        while ($row = mysql_fetch_array($q_res))
+        {
+            $bgcolor = '#FFFFFF';
+            if ($row['t_equipment_state_a_name'] == 'Исправен') $bgcolor = '#c9ccc4'; //'#d2f5b0';
+            else if ($row['t_equipment_state_a_name'] == 'Не исправен') $bgcolor = '#fcbdbd';
+            else if ($row['t_equipment_state_a_name'] == 'Ремонт') $bgcolor = '#fff494';
+
+
+            $str_rows .= '<tr border="1" bgcolor="'.$bgcolor.'" valign="top">';
+
+            // id
+            $str_rows .= '<td><a href="'.plugin_page( 'cop_page_obj_'.$this->m_name.'.php' ).'&cmd=read&obj_id='.$row['id']
+                        .'">'.$row['id'].'</a></td>';
+
+            // цикл по колонкам
+            foreach ($this->m_fields as $field)
+            {
+                //$str_rows .= '<td>'.$row[$field->m_name].'</td>';
+                $str_rows .= '<td>'.$row[$field->f_get_name_for_select_column()].'</td>';
+            }
+
+            $str_rows .= '</tr>';
+        }
+
+
+
+        // вывод
+        $res = '
+        <div align="center">
+            <form name="'.$this->m_name.'" method="post" enctype="multipart/form-data" action="plugin.php?page='.$in_page.'&cmd=delete_result&obj_id='.$_GET['obj_id'].'">
+                <div id="'.$this->m_name.'_msg" align="center" style="color:'.$in_result_color.'">'.$in_result_msg.'</div>
+                <table class="width90" cellspacing="1">
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            '.$this->f_show().'
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="left">
+                            <span class="required"> * Поле, обязательное для заполнения</span>
+                        </td>
+                        <td class="center">
+                            <div style="color:red"><b>Вы действительно хотите удалить объект?</b></div>
+                            <input class="button" value="Да" type="submit">
+                            <input class="button" value="Нет" type="button" onclick="location.href=\'plugin.php?page='.$in_page.'&cmd=read&obj_id='.$_GET['obj_id'].'\';">
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
+            </form>
+
+            <br>
+
+            <form name="'.$this->m_name.'_last_inserted" method="get" action="">
+            <table id="'.$this->m_name.'_obj_list" class="width100" cellspacing="1">
+            <tbody>
+            <tr>
+                <td class="form-title" colspan="'.$k_table_objects_headers.'">
+                    <span class="floatleft">
+                        Список объектов (1 - 3 / 3)
+                    </span>
+                </td>
+            </tr>
+            <tr class="row-category">
+                '.$str_table_objects_headers.'
+            </tr>
+
+            <tr class="spacer">
+                <td colspan="'.$k_table_objects_headers.'"></td>
+            </tr>
+            '.$str_rows.'
+            </tbody></table>
+            </form>
+
+        </div>
+        ';
+
+        return $res;
+    }
+
+
+    //--------------------------------------------------------------------------
+    //
+    function f_show_root_delete_result()
+    {
+        $result_msg = 'Операция выполнена успешно!';
+        $result_color = "green";
+        $res = '';
+
+        $in_page = $_GET['page'];
+
+        $obj_id = $_GET['obj_id'];
+        $obj_id = intval($obj_id);
+
+        // проверяем заполненность необходимых полей
+        //$is_required = $this->f_test_reqired_fields();
+
+        // обработка
+        do
+        {
+//            // проверяем обязательные поля
+//            if ($is_required['result'] == false)
+//            {
+//                $result_msg = $is_required['msg_err'];
+//                $result_color = "red";
+//
+//                $res = $this->f_show_root_update_base($in_page, $result_color, $result_msg);
+//                break;
+//            }
+
+
+            //------
+            // Получаем данные объекта из БД
+            // для определения изменений в update
+            // Запрос
+            $query = $this->f_get_select_for_id($obj_id);
+
+            //$res .= $query;
+            $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+            // сохраняем запрос в форму для последующей визуализации
+            $this->m_select_data = mysql_fetch_array($q_res);
+
+            //if ( mysql_num_rows($q_res) == 0)
+            if ($this->m_select_data == false)
+            {
+                $result_color = 'red';
+                $result_msg = "Объекта с ID = $obj_id не существует!";
+                $res .= '
+                <div id="'.$this->m_name.'_msg" align="center" style="color:'.$result_color.'">'.$result_msg.'</div>
+                ';
+            }
+
+            //------
+            // Формируем запрос и вызываем рекурсию!!
+            $values_array = array();
+            $error_str = $this->f_get_values_array_for_sql($values_array);
+
+            if ($error_str != '')
+            {
+                // ошибка формата данных контрола
+                $result_msg = $error_str;
+                $result_color = "red";
+
+                $res = $this->f_show_root_delete_base($in_page, $result_color, $result_msg);
+                break;
+            }
+
+            // действие
+            $query = $this->f_get_sql_delete_for_id($values_array, $obj_id);
+
+
+            // Выполняем запрос
+            //$result_msg .= '<br>req='.$query;
+            $q_res = mysql_query($query) or die('query='.$query.'; Err='.mysql_error());
+
+            $result_msg .= '<br>ID удаленного объекта: <span style="font-size:large">'.$obj_id.'</span>';
+
+            $res = '
+            <div align="center">
+                <form name="'.$this->m_name.'" method="post" enctype="multipart/form-data" action="'.plugin_page("cop_page_obj_".$this->m_name).'&cmd=delete_next">
+                    <div id="'.$this->m_name.'_msg" align="center" style="color:'.$result_color.'">'.$result_msg.'</div>
+                    <div class="center">
+                        <input tabindex="11" class="button" value="Удалить еще один объект" type="submit">
+                    </td>
+                </form>
+            </div>
+            ';
+
+        }while(false);
+
+
+
+        return $res;
+    }
+
+    //--------------------------------------------------------------------------
+    //
+    function f_show_root_delete_next()
+    {
+        $ret = '
+        <br>
+        <div align="center">
+        <form name="input_delete_object_id" method="get" enctype="multipart/form-data" action="plugin.php">
+        <input type="hidden" name="page" value="CubeObjectPower/cop_page_obj_'.$this->m_name.'.php">
+        <input type="hidden" name="cmd" value="delete">
+        <table class="width90" cellspacing="1">
+            <tbody>
+            <tr>
+                <td class="form-title" colspan="2">
+                    Введите ID наклейки
+                </td>
+            </tr>
+            <tr class="row-1">
+                <td class="category" width="30%">
+                    <span class="required">*</span>ID объекта
+                </td>
+                <td width="70%">
+                    <input tabindex="1" name="obj_id" size="105" maxlength="128" value="" type="text">
+                </td>
+            </tr>
+            <tr>
+                <td class="left">
+                    <span class="required"> * Поле, обязательное для заполнения</span>
+                </td>
+                <td class="center">
+                    <input tabindex="2" class="button" value="Удалить объект" type="submit">
+                </td>
+            </tr>
+        </tbody></table>
+        </form>
+        </div>
+        ';
+
+        return $ret;
+    }
 }
 
 //==============================================================================
