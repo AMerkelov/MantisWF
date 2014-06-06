@@ -81,7 +81,19 @@
 	$tpl_show_additional_information = in_array( 'additional_info', $t_fields );
 	$tpl_show_tags = in_array( 'tags', $t_fields );
 	$tpl_show_attachments = in_array( 'attachments', $t_fields );
-	$tpl_show_history = access_has_bug_level( config_get( 'view_history_threshold' ), $f_bug_id );
+//--OLD_BEGIN
+//    $tpl_show_history = access_has_bug_level( config_get( 'view_history_threshold' ), $f_bug_id );
+//--OLD_END
+//--MY_START_Merkelov
+    if (config_get( 'MY_print_history_enable' ) == true)
+    {
+        $tpl_show_history = access_has_bug_level( config_get( 'view_history_threshold' ), $f_bug_id );
+    }
+    else
+    {
+        $tpl_show_history = null;
+    }
+//--MY_END_Merkelov
 
 	$tpl_window_title = string_display_line( config_get( 'window_title' ) );
 	$tpl_project_name = $tpl_show_project ? string_display_line( project_get_name( $tpl_bug->project_id ) ) : '';

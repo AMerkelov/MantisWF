@@ -9,11 +9,23 @@
             function txt_surround(in_begin, in_end)
             {
                 var sel_text = getSelection(cur_textarea_for_edit);
+                if (sel_text.length == 0)
+                {
+                    alert("Будьте внимательнее! Вы не выделили текст!!!");
+                    return;
+                }
+
                 cur_textarea_for_edit.value = str_replace(sel_text, in_begin + sel_text + in_end, cur_textarea_for_edit.value);
             }
             function txt_file_to_url()
             {
                 var sel_text = getSelection(cur_textarea_for_edit);
+                if (sel_text.length == 0)
+                {
+                    alert("Будьте внимательнее! Вы не выделили текст!!!");
+                    return;
+                }
+
                 var res_text = file_path_to_url(sel_text);
                 cur_textarea_for_edit.value = str_replace(sel_text, res_text, cur_textarea_for_edit.value);
             }

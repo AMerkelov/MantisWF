@@ -27,7 +27,20 @@
 	require_once( 'current_user_api.php' );
 	require_once( 'string_api.php' );
 
-	$f_bug_id = gpc_get_int( 'bug_id' );
+//--MY_START_Merkelov
+    $f_bug_id = null;
+
+    //global $in_currbug_id_for_print;
+    if (isset($in_currbug_id_for_print))
+    {
+        $f_bug_id = $in_currbug_id_for_print;
+    }
+    else
+    {
+	    $f_bug_id = gpc_get_int( 'bug_id' );
+    }
+
+//--MY_END_Merkelov
 
 	# grab the user id currently logged in
 	$t_user_id	= auth_get_current_user_id();
@@ -50,9 +63,13 @@
 			ORDER BY date_submitted $t_bugnote_order";
 	$result = db_query_bound($query, Array( $c_bug_id ) );
 	$num_notes = db_num_rows($result);
+
+    if (isset($in_currbug_id_for_print) == false)
+    {
+        echo '<br />';
+    }
 ?>
 
-<br />
 <table class="width100" cellspacing="1">
 <?php
 	# no bugnotes

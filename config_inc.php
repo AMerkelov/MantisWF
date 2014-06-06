@@ -250,5 +250,62 @@ $g_log_destination = 'file:C:\MyIISServices\mantis\logs\mantisbt2.log';
 	);
 
 
+	/**
+	 * An array of the fields to show on the bug print page.
+	 * @global array $g_bug_print_page_fields
+	 */
+	$g_bug_print_page_fields = array (
+		'id',
+		'project',
+		'category_id',
+		'view_state',
+		'date_submitted',
+		'last_updated',
+		'reporter',
+		'handler',
+		'priority',
+//		'severity',
+//		'reproducibility',
+		'status',
+		'resolution',
+		'projection',
+//		'eta',
+//		'platform',
+//		'os',
+//		'os_version',
+//		'product_version',
+//		'product_build',
+//		'target_version',
+//		'fixed_in_version',
+		'summary',
+		'description',
+//		'additional_info',
+//		'steps_to_reproduce',
+		'tags',
+		'attachments',
+		'due_date',
+	);
 
+	/*********************************
+	 * MantisBT Bug History Settings *
+	 *********************************/
+
+	/**
+	 * bug history visible by default when you view a bug
+	 * change to ON or OFF
+	 * @global int $g_history_default_visible
+	 */
+	$g_history_default_visible	= OFF;
+
+	/**
+	 * bug history ordering
+	 * change to ASC or DESC
+	 * @global string $g_history_order
+	 */
+	$g_history_order		= 'ASC';
+
+    //==================================
+    // Мои дополнительные параметры
+    //==================================
+    $g_MY_print_history_enable = false;
 ?>
