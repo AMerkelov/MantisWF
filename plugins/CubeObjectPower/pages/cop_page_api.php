@@ -65,14 +65,22 @@ echo
 ('
 <table class="width100" cellspacing="0"><tbody><tr><td class="menu">
     <a href="'.plugin_page("cop_page_main").'">Главная</a> |
-    <a href="'.plugin_page("cop_page_obj_t_equipment").'&cmd=search">Поиск оборудования</a> |
+    <a href="'.plugin_page("cop_obj_api").'&obj=t_equipment&cmd=search">Поиск оборудования</a> |
     <a href="'.plugin_page("cop_page_equipment_add").'">Добавление оборудования</a> |
     <a href="'.plugin_page("cop_page_main").'">Статистика</a> |
-    <a href="'.plugin_page("cop_page_main").'">Конфигурация</a> |
+    <a href="'.plugin_page("cop_page_config").'">Конфигурация</a> |
     <a href="'.plugin_page("cop_page_tests").'">Тесты</a> |
     <a href="index.php">Мантис</a> |
     </td>
-    <td class="menu right nowrap"><form method="post" action="'.plugin_page("cop_jump_to_object.php").'"><input name="obj_id" size="10" class="small" value="Объект #" onfocus="if (this.value == \'Объект #\') this.value = \'\'" onblur="if (this.value == \'\') this.value = \'Объект #\'" type="text">&nbsp;<input class="button-small" value="Перейти" type="submit">&nbsp;</form>
+    <td class="menu right nowrap">
+        <form name="jump_to_object_by_id" method="get" enctype="multipart/form-data" action="plugin.php">
+        <input type="hidden" name="page" value="CubeObjectPower/cop_obj_api.php">
+        <input type="hidden" name="cmd" value="read">
+        <input type="hidden" name="obj" value="t_equipment">
+        <input name="obj_id" size="10" class="small" value="Объект #" onfocus="if (this.value == \'Объект #\') this.value = \'\'" onblur="if (this.value == \'\') this.value = \'Объект #\'" type="text">&nbsp;
+        <input class="button-small" value="Перейти" type="submit">&nbsp;
+        </form>
+
     </td></tr></tbody></table>
 ');
     }

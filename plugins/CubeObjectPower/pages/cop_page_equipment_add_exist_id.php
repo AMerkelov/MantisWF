@@ -12,8 +12,9 @@
     <br>
     <div align="center">
     <form name="input_edit_object_id" method="get" enctype="multipart/form-data" action="plugin.php">
-    <input type="hidden" name="page" value="CubeObjectPower/cop_page_equipment_update.php">
+    <input type="hidden" name="page" value="CubeObjectPower/cop_obj_api.php">
     <input type="hidden" name="cmd" value="update">
+    <input type="hidden" name="obj" value="t_equipment">
     <table class="width90" cellspacing="1">
         <tbody>
         <tr>

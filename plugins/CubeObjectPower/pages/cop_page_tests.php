@@ -16,6 +16,7 @@
     echo('<br><a href="'. plugin_page( 'cop_page_test1_grid.php' ) . '"> grid тест1 </a>');
     echo('<br><a href="'. plugin_page( 'cop_page_test2_grid.php' ) . '"> grid тест2 </a>');
     echo('<br><a href="'. plugin_page( 'cop_page_test3_forms.php' ) . '"> формы тест3 </a>');
+    echo('<br><a href="'. plugin_page( 'cop_obj_api.php' ) . '&cmd=read&obj=t_equipment"> тест4 - api объектов </a>');
 
 
 
